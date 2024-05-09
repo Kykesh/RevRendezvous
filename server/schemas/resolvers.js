@@ -12,11 +12,37 @@ const resolvers = {
       }
       throw new AuthenticationError('Not authenticated');
     },
+    event: async (parent, { _id }) => {
+      return await Event.findById(_id).populate('host');
+    },    
     events: async () => {
       return await Event.find({});
     },
+    events: async () => {
+      return await Event.find({})
+          .populate('host')
+          .populate('participants');
+  },
+  events: async () => {
+    const events = await Event.find({})
+        .populate('host')
+        .populate('participants');
+    console.log(events);
+    return events;
+},
+events: async () => {
+  return await Event.find({})
+      .populate('host')
+      .populate('participants');
+},
     event: async (parent, { _id }) => {
       return await Event.findById(_id).populate('host participants');
+    },
+    events: async () => {
+      return await Event.find({}).populate('host participants');
+    },
+    events: async () => {
+      return await Event.find({}).populate('host').populate('participants');
     },
     payments: async () => {
       return await Payment.find({});
@@ -33,10 +59,14 @@ const resolvers = {
   },
   Mutation: {
     addUser: async (parent, args) => {
-      const user = await User.create(args);
-      const token = signToken(user);
-      return { token, user };
-    },
+      try {
+        const user = await User.create(args);
+        const token = signToken(user);
+        return { token, user };
+      } catch (error) {
+        throw new Error('Error creating user: ' + error.message);
+      }
+    },    
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
       if (!user) {
