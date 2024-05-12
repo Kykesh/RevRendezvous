@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
+const { ApolloServerPluginCacheControl } = require('apollo-server-core');
+const responseCachePlugin = require('apollo-server-plugin-response-cache');
 const path = require('path');
 const { authMiddleware } = require('./utils/auth');
 const { typeDefs, resolvers } = require('./schemas');
@@ -13,6 +15,16 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req }) => authMiddleware({ req }),
+  plugins: [
+    responseCachePlugin({
+      
+      sessionId: (requestContext) => (requestContext.request.http.headers.get('session-id') || null)
+    }),
+    ApolloServerPluginCacheControl({
+      
+      defaultMaxAge: 5, // seconds
+    })
+  ],
 });
 
 const startApolloServer = async () => {
@@ -27,8 +39,6 @@ const startApolloServer = async () => {
       res.sendFile(path.join(__dirname, '../client/index.html'));
     });
   }
-  
-
 
   app.use(server.getMiddleware({ path: '/graphql' }));
 
