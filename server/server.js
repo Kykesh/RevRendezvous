@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
+const { InMemoryLRUCache } = require('apollo-server-caching'); // Include the cache library
 const path = require('path');
 const { authMiddleware } = require('./utils/auth');
 const { typeDefs, resolvers } = require('./schemas');
@@ -9,11 +10,17 @@ const db = require('./config/connection');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Create a new instance of an Apollo server with the GraphQL schema
+// Create a new instance of an Apollo server with the GraphQL schema and a bounded cache
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => authMiddleware({ req }) // Use authMiddleware to inject user info
+  context: ({ req }) => authMiddleware({ req }), // Use authMiddleware to inject user info
+  persistedQueries: {
+    cache: new InMemoryLRUCache({
+      maxSize: 1000000, // Set the maximum size of the cache
+      ttl: 3600000    // Set the time to live for cache entries
+    })
+  }
 });
 
 // Initialize Apollo server with Express application
