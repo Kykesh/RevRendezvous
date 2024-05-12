@@ -1,6 +1,11 @@
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
+  input MotorcycleDetailsInput {
+    type: String
+    engineSize: String
+  }
+
   type User {
     _id: ID
     username: String
@@ -11,6 +16,8 @@ const typeDefs = gql`
     ridingExperience: String
     preferences: String
     payments: [Payment]
+    firstName: String
+    lastName: String
   }
 
   type MotorcycleDetails {
@@ -64,13 +71,48 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    addUser(username: String!, email: String!, password: String!): Auth
+    addUser(
+      username: String!,
+      email: String!,
+      password: String!,
+      firstName: String!,
+      lastName: String!,
+      ridingExperience: String,
+      motorcycleDetails: MotorcycleDetailsInput
+    ): Auth
     login(email: String!, password: String!): Auth
-    addEvent(eventName: String!, eventDescription: String!, eventDate: String!, location: String!, hostId: ID!, eventFee: Float, isCharitable: Boolean): Event
-    updateEvent(_id: ID!, eventName: String, eventDescription: String, eventDate: String, location: String, eventFee: Float, isCharitable: Boolean): Event
-    registerForEvent(eventId: ID!, userId: ID!): Event
-    addPayment(userId: ID!, eventId: ID!, amount: Float): Payment
-    addNotification(recipientId: ID!, message: String!, eventType: String!): Notification
+    addEvent(
+      eventName: String!,
+      eventDescription: String!,
+      eventDate: String!,
+      location: String!,
+      hostId: ID!,
+      eventFee: Float,
+      isCharitable: Boolean
+    ): Event
+    updateEvent(
+      _id: ID!,
+      eventName: String,
+      eventDescription: String,
+      eventDate: String,
+      location: String,
+      eventFee: Float,
+      isCharitable: Boolean
+    ): Event
+    registerForEvent(
+      eventId: ID!,
+      userId: ID!
+    ): Event
+    addPayment(
+      userId: ID!,
+      eventId: ID!,
+      amount: Float
+    ): Payment
+    addNotification(
+      recipientId: ID!,
+      message: String!,
+      eventType: String!
+    ): Notification
   }
 `;
 

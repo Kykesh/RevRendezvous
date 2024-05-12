@@ -17,7 +17,9 @@ db.once('open', async () => {
         engineSize: "1200cc"
       },
       ridingExperience: "Intermediate",
-      preferences: "Likes long rides"
+      preferences: "Likes long rides",
+      firstName: "Joe",
+      lastName: "Rider"
     },
     {
       username: "MotoSally",
@@ -29,7 +31,9 @@ db.once('open', async () => {
         engineSize: "1000cc"
       },
       ridingExperience: "Advanced",
-      preferences: "Likes racing events"
+      preferences: "Likes racing events",
+      firstName: "Sally",
+      lastName: "Moto"
     }
   ]);
 

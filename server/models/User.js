@@ -41,7 +41,15 @@ const userSchema = new Schema({
     type: String,
     required: false
   },
-  payments: [paymentSchema] // Referencing payment schema directly instead of 'orders'
+  payments: [paymentSchema], // Referencing payment schema directly instead of 'orders'
+  firstName: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: true
+  }
 });
 
 // Middleware to hash password before saving a user
