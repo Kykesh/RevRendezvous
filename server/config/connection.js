@@ -2,7 +2,12 @@ require('dotenv').config();  // This line should be at the very top of the file
 
 const mongoose = require('mongoose');
 
-const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/revrendezvous';
+const mongoURI = process.env.MONGODB_URI;
+
+if (!mongoURI) {
+    console.error("MongoDB URI is not set. Ensure MONGODB_URI is available in the environment variables.");
+    process.exit(1);
+}
 
 mongoose.connect(mongoURI, {
     useNewUrlParser: true,
