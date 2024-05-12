@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { ApolloServerPluginCacheControl } = require('apollo-server-core');
-const { responseCachePlugin } = require('apollo-server-plugin-response-cache');
+const { default: responseCachePlugin } = require('apollo-server-plugin-response-cache'); 
 const path = require('path');
 const { authMiddleware } = require('./utils/auth');
 const { typeDefs, resolvers } = require('./schemas');
@@ -16,9 +16,9 @@ const server = new ApolloServer({
   resolvers,
   context: ({ req }) => authMiddleware({ req }),
   plugins: [
-    responseCachePlugin(),
+    responseCachePlugin(), // Check usage
     ApolloServerPluginCacheControl({
-      defaultMaxAge: 5, // seconds
+      defaultMaxAge: 5,
     })
   ],
 });
