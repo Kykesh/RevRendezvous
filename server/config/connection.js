@@ -1,4 +1,4 @@
-require('dotenv').config();  // This line should be at the very top of the file
+require('dotenv').config();  
 
 const mongoose = require('mongoose');
 
