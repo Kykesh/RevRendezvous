@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 // Retrieve MongoDB URI from environment variables
 const mongoURI = process.env.MONGODB_URI;
+console.log(mongoURI)
 
 // Check if the MongoDB URI is properly set
 if (!mongoURI) {
