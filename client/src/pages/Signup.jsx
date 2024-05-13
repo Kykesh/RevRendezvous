@@ -1,10 +1,21 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { ADD_USER } from '../utils/mutations';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Link,
+  VStack,
+  Text,
+  useToast
+} from '@chakra-ui/react';
 
-function Signup(props) {
+function Signup() {
   const [formState, setFormState] = useState({
     username: '',
     email: '',
@@ -15,16 +26,22 @@ function Signup(props) {
     motorcycleDetails: { type: '', engineSize: '' }
   });
 
-  const [addUser, { error }] = useMutation(ADD_USER);
+  const [addUser] = useMutation(ADD_USER);
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    console.log("Submitting form...");
 
     if (!formState.username || !formState.email || !formState.password || !formState.firstName || !formState.lastName) {
-      console.error('Please fill in all required fields.');
-      return;  // Prevent submission if required fields are not filled
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+      return;
     }
 
     try {
@@ -37,143 +54,80 @@ function Signup(props) {
           }
         }
       });
-      console.log("Mutation response:", mutationResponse);
 
-      const token = mutationResponse.data.addUser.token;
-      Auth.login(token);
+      Auth.login(mutationResponse.data.addUser.token);
       navigate('/profile');
     } catch (e) {
-      console.error('Error during signup:', e);
+      toast({
+        title: "Signup failed",
+        description: e.message,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     if (name === "motorcycleType" || name === "engineSize") {
-      setFormState({
-        ...formState,
+      setFormState(prevState => ({
+        ...prevState,
         motorcycleDetails: {
-          ...formState.motorcycleDetails,
+          ...prevState.motorcycleDetails,
           [name]: value
         }
-      });
+      }));
     } else {
-      setFormState({
-        ...formState,
+      setFormState(prevState => ({
+        ...prevState,
         [name]: value
-      });
+      }));
     }
   };
 
-  if (error) {
-    console.error("Error from the server:", error);
-  }
-
   return (
-    <div className="container my-1">
-      <Link to="/login">← Go to Login</Link>
-      <h2>Signup</h2>
+    <Box maxW="container.md" mx="auto" p={5}>
+      <Link as={RouterLink} to="/login" color="blue.500">← Go to Login</Link>
+      <Text fontSize="2xl" mt={2} mb={4}>Signup</Text>
       <form onSubmit={handleFormSubmit}>
-        {/* Required fields */}
-        <div className="flex-row space-between my-2">
-          <label htmlFor="username">Username:</label>
-          <input
-            placeholder="Your username"
-            name="username"
-            type="text"
-            id="username"
-            value={formState.username}
-            onChange={handleChange}
-            required  // Mark field as required
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="firstName">First Name:</label>
-          <input
-            placeholder="First"
-            name="firstName"
-            type="text"
-            id="firstName"
-            value={formState.firstName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="lastName">Last Name:</label>
-          <input
-            placeholder="Last"
-            name="lastName"
-            type="text"
-            id="lastName"
-            value={formState.lastName}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="email">Email:</label>
-          <input
-            placeholder="youremail@test.com"
-            name="email"
-            type="email"
-            id="email"
-            value={formState.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="pwd">Password:</label>
-          <input
-            placeholder="******"
-            name="password"
-            type="password"
-            id="pwd"
-            value={formState.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        {/* Optional fields */}
-        <div className="flex-row space-between my-2">
-          <label htmlFor="ridingExperience">Riding Experience:</label>
-          <input
-            placeholder="Years of Experience"
-            name="ridingExperience"
-            type="text"
-            id="ridingExperience"
-            value={formState.ridingExperience}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="motorcycleType">Motorcycle Type:</label>
-          <input
-            placeholder="Type of Motorcycle"
-            name="motorcycleType"
-            type="text"
-            id="motorcycleType"
-            value={formState.motorcycleDetails.type}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="engineSize">Engine Size:</label>
-          <input
-            placeholder="Engine Size in CC"
-            name="engineSize"
-            type="text"
-            id="engineSize"
-            value={formState.motorcycleDetails.engineSize}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex-row flex-end">
-          <button type="submit">Submit</button>
-        </div>
+        <VStack spacing={4}>
+          <FormControl isRequired>
+            <FormLabel htmlFor="username">Username:</FormLabel>
+            <Input id="username" name="username" placeholder="Your username" onChange={handleChange} value={formState.username} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="firstName">First Name:</FormLabel>
+            <Input id="firstName" name="firstName" placeholder="First" onChange={handleChange} value={formState.firstName} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="lastName">Last Name:</FormLabel>
+            <Input id="lastName" name="lastName" placeholder="Last" onChange={handleChange} value={formState.lastName} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="email">Email:</FormLabel>
+            <Input id="email" name="email" type="email" placeholder="youremail@test.com" onChange={handleChange} value={formState.email} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel htmlFor="pwd">Password:</FormLabel>
+            <Input id="pwd" name="password" type="password" placeholder="******" onChange={handleChange} value={formState.password} />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="ridingExperience">Riding Experience:</FormLabel>
+            <Input id="ridingExperience" name="ridingExperience" placeholder="Years of Experience" onChange={handleChange} value={formState.ridingExperience} />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="motorcycleType">Motorcycle Type:</FormLabel>
+            <Input id="motorcycleType" name="motorcycleType" placeholder="Type of Motorcycle" onChange={handleChange} value={formState.motorcycleDetails.type} />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="engineSize">Engine Size:</FormLabel>
+            <Input id="engineSize" name="engineSize" placeholder="Engine Size in CC" onChange={handleChange} value={formState.motorcycleDetails.engineSize} />
+          </FormControl>
+          <Button type="submit" colorScheme="blue" size="lg" mt={4}>Submit</Button>
+        </VStack>
       </form>
-    </div>
+    </Box>
   );
 }
 

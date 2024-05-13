@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link as RouterLink } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
+import { Box, Image, Link, Text, VStack, Spinner, Heading } from '@chakra-ui/react';
 
 import { GET_EVENTS } from '../utils/queries';
-import spinner from '../assets/spinner.gif';
+import spinnerImage from '../assets/spinner.gif';
 
 function Detail() {
   const { id } = useParams();
@@ -17,30 +18,33 @@ function Detail() {
     }
   }, [data, id]);
 
+  if (loading) {
+    return <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />;
+  }
+
+  if (!currentEvent) {
+    return <Text fontSize="lg" p={5}>No event found.</Text>;
+  }
+
   return (
-    <>
-      {loading ? (
-        <img src={spinner} alt="loading" />
-      ) : currentEvent ? (
-        <div className="container my-1">
-          <Link to="/">← Back to Events</Link>
+    <Box maxW="container.md" mx="auto" p={5}>
+      <Link as={RouterLink} to="/" color="blue.500" mb={2}>← Back to Events</Link>
+      <VStack spacing={4} align="stretch">
+        <Heading as="h2">{currentEvent.eventName}</Heading>
+        <Text>{currentEvent.eventDescription}</Text>
+        <Text><strong>Date:</strong> {new Date(currentEvent.eventDate).toLocaleDateString()}</Text>
+        <Text><strong>Location:</strong> {currentEvent.location}</Text>
+        <Text><strong>Fee:</strong> ${currentEvent.eventFee} {currentEvent.isCharitable ? "(Charitable)" : ""}</Text>
 
-          <h2>{currentEvent.eventName}</h2>
-          <p>{currentEvent.eventDescription}</p>
-          <p><strong>Date:</strong> {new Date(currentEvent.eventDate).toLocaleDateString()}</p>
-          <p><strong>Location:</strong> {currentEvent.location}</p>
-          <p><strong>Fee:</strong> ${currentEvent.eventFee} {currentEvent.isCharitable ? "(Charitable)" : ""}</p>
-
-          {currentEvent.host && (
-            <p>Hosted by: {currentEvent.host.username}</p>
-          )}
-
-          {currentEvent.image && (
-            <img src={`/images/${currentEvent.image}`} alt={currentEvent.eventName} />
-          )}
-        </div>
-      ) : <p>No event found.</p>}
-    </>
+        {currentEvent.host && (
+          <Text>Hosted by: {currentEvent.host.username}</Text>
+        )}
+        
+        {currentEvent.image && (
+          <Image src={`/images/${currentEvent.image}`} alt={currentEvent.eventName} />
+        )}
+      </VStack>
+    </Box>
   );
 }
 

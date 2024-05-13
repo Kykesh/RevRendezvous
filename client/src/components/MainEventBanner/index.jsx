@@ -1,11 +1,14 @@
 import React from 'react';
+import { Box, Heading } from '@chakra-ui/react';
 
 const MainEventBanner = () => {
   return (
-    <div>
-      <h1>Upcoming Events</h1>
-      {/* Banner content here */}
-    </div>
+    <Box as="section" p={5} bg="primary" color="white" textAlign="center">
+      <Heading as="h1" size="xl" mb={4}>
+        Upcoming Events
+      </Heading>
+      {/* Additional banner content here */}
+    </Box>
   );
 };
 

@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { LOGIN_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Link,
+  VStack,
+  Text,
+  useToast
+} from '@chakra-ui/react';
 
 function Login() {
   const [formState, setFormState] = useState({ email: '', password: '' });
-  const [login, { error, loading }] = useMutation(LOGIN_USER);
+  const [login, { loading }] = useMutation(LOGIN_USER);
+  const navigate = useNavigate();
+  const toast = useToast();
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -16,58 +29,56 @@ function Login() {
       });
       const token = mutationResponse.data.login.token;
       Auth.login(token); // Handles session setting
+      navigate('/profile');
     } catch (e) {
-      console.log(e);
+      toast({
+        title: "Login failed",
+        description: e.message,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
     }
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormState({
-      ...formState,
+    setFormState(prevState => ({
+      ...prevState,
       [name]: value
-    });
+    }));
   };
 
   return (
-    <div className="container my-1">
-      <Link to="/signup">← Go to Signup</Link>
-
-      <h2>Login</h2>
-      <form onSubmit={handleFormSubmit}>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="email">Email address:</label>
-          <input
-            placeholder="youremail@test.com"
+    <Box maxW="container.md" mx="auto" p={5}>
+      <Link as={RouterLink} to="/signup" color="blue.500">← Go to Signup</Link>
+      <Text fontSize="2xl" mt={2} mb={4}>Login</Text>
+      <VStack as="form" onSubmit={handleFormSubmit} spacing={4}>
+        <FormControl isRequired>
+          <FormLabel htmlFor="email">Email address:</FormLabel>
+          <Input
+            id="email"
             name="email"
             type="email"
-            id="email"
-            value={formState.email}
+            placeholder="youremail@test.com"
             onChange={handleChange}
+            value={formState.email}
           />
-        </div>
-        <div className="flex-row space-between my-2">
-          <label htmlFor="password">Password:</label>
-          <input
-            placeholder="******"
+        </FormControl>
+        <FormControl isRequired>
+          <FormLabel htmlFor="password">Password:</FormLabel>
+          <Input
+            id="password"
             name="password"
             type="password"
-            id="password"
-            value={formState.password}
+            placeholder="******"
             onChange={handleChange}
+            value={formState.password}
           />
-        </div>
-        {error && (
-          <div>
-            <p className="error-text">The provided credentials are incorrect</p>
-          </div>
-        )}
-        <div className="flex-row flex-end">
-          <button type="submit" disabled={loading}>Submit</button>
-        </div>
-        {loading && <p>Loading...</p>}
-      </form>
-    </div>
+        </FormControl>
+        <Button type="submit" colorScheme="blue" size="lg" mt={4} isLoading={loading}>Submit</Button>
+      </VStack>
+    </Box>
   );
 }
 
